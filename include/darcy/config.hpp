@@ -18,6 +18,29 @@
 #define DARCY_RESTRICT
 #endif
 
+// Portable OpenMP pragmas.
+//
+// MSVC implements only OpenMP 2.0, which has neither the `simd` clause nor the
+// `parallel for simd` combined directive (both OpenMP 4.0). GCC and Clang do,
+// and there the `simd` clause is what authorises vectorising a floating-point
+// reduction that is otherwise non-associative. So we emit `simd` on the
+// compilers that understand it and drop it on MSVC, via a token that expands to
+// nothing there. `DARCY_OMP(...)` wraps the whole directive so the clauses
+// (which contain commas) survive as a single `_Pragma` string; the two-level
+// indirection is what lets `DARCY_SIMD` expand before stringisation.
+#if DARCY_HAS_OPENMP
+#define DARCY_DO_PRAGMA(x) _Pragma(#x)
+#define DARCY_OMP(x) DARCY_DO_PRAGMA(omp x)
+#if defined(_MSC_VER)
+#define DARCY_SIMD
+#else
+#define DARCY_SIMD simd
+#endif
+#else
+#define DARCY_OMP(x)
+#define DARCY_SIMD
+#endif
+
 namespace darcy {
 
 /// Signed index type used for all grid and vector loops.

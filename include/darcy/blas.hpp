@@ -29,7 +29,7 @@ inline double dot(const vec& x, const vec& y) noexcept {
     const double* DARCY_RESTRICT py = y.data();
     const index_t n = static_cast<index_t>(x.size());
     double s = 0.0;
-#pragma omp parallel for simd reduction(+ : s) schedule(static) if (n >= kMinParallelSize)
+DARCY_OMP(parallel for DARCY_SIMD reduction(+ : s) schedule(static) if (n >= kMinParallelSize))
     for (index_t i = 0; i < n; ++i) s += px[i] * py[i];
     return s;
 }
@@ -42,7 +42,7 @@ inline void axpy(double alpha, const vec& x, vec& y) noexcept {
     const double* DARCY_RESTRICT px = x.data();
     double* DARCY_RESTRICT py = y.data();
     const index_t n = static_cast<index_t>(x.size());
-#pragma omp parallel for simd schedule(static) if (n >= kMinParallelSize)
+DARCY_OMP(parallel for DARCY_SIMD schedule(static) if (n >= kMinParallelSize))
     for (index_t i = 0; i < n; ++i) py[i] += alpha * px[i];
 }
 
@@ -51,7 +51,7 @@ inline void xpby(const vec& x, double beta, vec& y) noexcept {
     const double* DARCY_RESTRICT px = x.data();
     double* DARCY_RESTRICT py = y.data();
     const index_t n = static_cast<index_t>(x.size());
-#pragma omp parallel for simd schedule(static) if (n >= kMinParallelSize)
+DARCY_OMP(parallel for DARCY_SIMD schedule(static) if (n >= kMinParallelSize))
     for (index_t i = 0; i < n; ++i) py[i] = px[i] + beta * py[i];
 }
 
@@ -66,7 +66,7 @@ inline double cg_update(double alpha, const vec& p, const vec& ap, vec& u, vec& 
     double* DARCY_RESTRICT pr = r.data();
     const index_t n = static_cast<index_t>(u.size());
     double rr = 0.0;
-#pragma omp parallel for simd reduction(+ : rr) schedule(static) if (n >= kMinParallelSize)
+DARCY_OMP(parallel for DARCY_SIMD reduction(+ : rr) schedule(static) if (n >= kMinParallelSize))
     for (index_t i = 0; i < n; ++i) {
         pu[i] += alpha * pp[i];
         const double ri = pr[i] - alpha * pap[i];
@@ -79,7 +79,7 @@ inline double cg_update(double alpha, const vec& p, const vec& ap, vec& u, vec& 
 inline void fill(vec& x, double value) noexcept {
     double* DARCY_RESTRICT px = x.data();
     const index_t n = static_cast<index_t>(x.size());
-#pragma omp parallel for simd schedule(static) if (n >= kMinParallelSize)
+DARCY_OMP(parallel for DARCY_SIMD schedule(static) if (n >= kMinParallelSize))
     for (index_t i = 0; i < n; ++i) px[i] = value;
 }
 

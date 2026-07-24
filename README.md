@@ -192,7 +192,7 @@ cmake --build build && ctest --test-dir build         #   Galerkin identity, SPD
   matrices.
 
 CI runs the Python suite on Linux/macOS/Windows × Python 3.9/3.12, the native
-C++ tests, an ASan/UBSan build, `ruff` + `mypy`, and `cibuildwheel` on every push.
+C++ tests, an ASan/UBSan build, and `ruff` + `mypy` on every push.
 
 ## Layout
 
