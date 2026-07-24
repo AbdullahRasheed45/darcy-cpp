@@ -1,0 +1,86 @@
+[build-system]
+requires = ["scikit-build-core>=0.10", "pybind11>=2.12"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "darcy-cpp"
+version = "1.0.0"
+description = "Matrix-free multigrid Darcy flow solver in C++17 with Python bindings"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Muhammad Abdullah Rasheed" }]
+keywords = ["pde", "multigrid", "finite-volume", "darcy", "hpc", "openmp", "pybind11"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: C++",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Mathematics",
+  "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = ["numpy>=1.22"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "pytest-cov", "scipy>=1.9", "ruff>=0.6", "mypy>=1.10"]
+bench = ["scipy>=1.9", "matplotlib>=3.6"]
+
+[project.scripts]
+darcy = "darcy.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/AbdullahRasheed45/darcy-cpp"
+Issues = "https://github.com/AbdullahRasheed45/darcy-cpp/issues"
+
+[tool.scikit-build]
+minimum-version = "0.10"
+build-dir = "build/{wheel_tag}"
+wheel.packages = ["python/darcy"]
+sdist.include = ["include/", "src/", "CMakeLists.txt"]
+
+[tool.scikit-build.cmake.define]
+DARCY_VERSION = "1.0.0"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = "-q --strict-markers --strict-config"
+markers = [
+  "slow: benchmarks and large-grid convergence studies (deselect with '-m \"not slow\"')",
+]
+
+[tool.ruff]
+line-length = 105
+target-version = "py39"
+extend-exclude = ["build"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "NPY", "RUF"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["darcy", "conftest"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+"python/darcy/_core.pyi" = ["UP035", "UP006"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_unused_ignores = true
+disallow_untyped_defs = true
+files = ["python/darcy"]
+# SciPy ships no type stubs and is an optional dependency; don't fail on it.
+[[tool.mypy.overrides]]
+module = ["scipy.*"]
+ignore_missing_imports = true
+
+[tool.cibuildwheel]
+build = "cp39-* cp310-* cp311-* cp312-* cp313-*"
+skip = "*-musllinux_i686 pp*"
+test-requires = ["pytest", "scipy"]
+test-command = "pytest {project}/tests -q -m 'not slow'"
+
+[tool.cibuildwheel.macos]
+before-all = "brew install libomp"
+environment = { MACOSX_DEPLOYMENT_TARGET = "10.15" }

@@ -1,0 +1,28 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+# build artifacts (root-anchored so package sources are NOT matched)
+/build/
+/dist/
+/wheelhouse/
+_skbuild/
+*.so
+*.dylib
+*.o
+*.egg-info/
+.coverage
+htmlcov/
+coverage.xml
+# generated data
+/data/
+*.npz
+/benchmark_results.json
+# editors
+.vscode/
+.idea/
+# keep docs/*.png committed as portfolio artifacts
